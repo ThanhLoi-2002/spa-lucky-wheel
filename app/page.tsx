@@ -204,7 +204,7 @@ export default function SpaLuckyWheel() {
     setResult(null);
 
     // Random số vòng quay với animation mượt mà hơn
-    const spins = Math.floor(Math.random() * 5) + 8; // 8-12 vòng
+    const spins = Math.floor(Math.random() * 5) + 12; // 8-12 vòng
     const randomAngle = Math.floor(Math.random() * 360);
     const totalRotation = rotation + spins * 360 + randomAngle;
 
@@ -514,21 +514,6 @@ export default function SpaLuckyWheel() {
               </div>
             </Card>
           )}
-
-          <Button
-            onClick={spinWheel}
-            disabled={isSpinning}
-            className="px-6 sm:px-8 py-3 sm:py-4 text-lg sm:text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-full shadow-lg transform transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSpinning ? (
-              <span className="flex items-center gap-2">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Đang quay...
-              </span>
-            ) : (
-              "🎲 QUAY NGAY!"
-            )}
-          </Button>
         </div>
 
         {/* Wheel Container */}
@@ -581,7 +566,7 @@ export default function SpaLuckyWheel() {
                       key={prize.id}
                       className="absolute top-1/2 right-1/2 left-1/2 origin-left"
                       style={{
-                        transform: `translate(-50%, -50%) rotate(${angle}deg) translateX(55px)`,
+                        transform: `translate(-50%, -50%) rotate(${angle}deg) translateX(60px)`,
                         transformOrigin: "left center",
                       }}
                     >
@@ -589,7 +574,7 @@ export default function SpaLuckyWheel() {
                         <span className="text-lg sm:text-xl mr-2">
                           {prize.icon}
                         </span>
-                        <span className="text-xs sm:text-sm whitespace-nowrap">
+                        <span className="text-xs sm:text-sm text-center whitespace-nowrap">
                           {prize.text.length > 15
                             ? prize.text.substring(0, 15) + "..."
                             : prize.text}
