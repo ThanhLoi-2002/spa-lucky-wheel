@@ -15,41 +15,13 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-
-interface Prize {
-  id: number;
-  text: string;
-  color: string;
-  icon: string;
-}
-
-interface SpinHistory {
-  phone: string;
-  prize: string;
-  date: string;
-}
-
-const defaultPrizes: Prize[] = [
-  { id: 1, text: "Giảm 5% HĐ", color: "#FF6B6B", icon: "💰" },
-  { id: 2, text: "Tặng Gương", color: "#4ECDC4", icon: "🪞" },
-  { id: 3, text: "Tặng 1 suất trị thâm N-B-M", color: "#45B7D1", icon: "✨" },
-  { id: 4, text: "Tặng 1 suất làm hồng Ti-Bi", color: "#96CEB4", icon: "💋" },
-  {
-    id: 5,
-    text: "Tặng voucher trị giá 50k tiền mặt",
-    color: "#FFEAA7",
-    icon: "🎁",
-  },
-  { id: 6, text: "Tặng son dưỡng cấp ẩm", color: "#DDA0DD", icon: "💄" },
-  { id: 7, text: "Giảm 10% HĐ", color: "#FFB6C1", icon: "🏷️" },
-  { id: 8, text: "Tặng lo dưỡng trắng N-B-M", color: "#98FB98", icon: "🧴" },
-  {
-    id: 9,
-    text: "Tặng voucher trị giá 50K tiền mặt",
-    color: "#F0E68C",
-    icon: "💸",
-  },
-];
+import Footer from "@/components/footer/Footer";
+import { Prize, defaultPrizes, SpinHistory } from "./constants/constant";
+import History from "@/components/history/History";
+import Wheel from "@/components/wheel/Wheel";
+import Header from "@/components/header/Header";
+import LoginForm from "@/components/login/LoginForm";
+import ActionButtons from "@/components/button/ActionButtons";
 
 export default function SpaLuckyWheel() {
   const [isSpinning, setIsSpinning] = useState(false);
@@ -57,6 +29,12 @@ export default function SpaLuckyWheel() {
   const [rotation, setRotation] = useState(0);
   const [prizes, setPrizes] = useState<Prize[]>(defaultPrizes);
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [adminCredentials, setAdminCredentials] = useState({
+    username: "",
+    password: "",
+  });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [newPrize, setNewPrize] = useState({
     text: "",
     color: "#FF6B6B",
@@ -333,84 +311,43 @@ export default function SpaLuckyWheel() {
   // Thêm useEffect để tải lịch sử khi component mount
   useEffect(() => {
     loadHistory();
+
+    // Kiểm tra trạng thái đăng nhập từ localStorage
+    const savedLoginState = localStorage.getItem("adminLoggedIn");
+    if (savedLoginState === "true") {
+      setIsLoggedIn(true);
+    }
   }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 p-2 sm:p-4">
-      <style jsx global>{`
-        @keyframes confetti-fall {
-          to {
-            transform: translateY(100vh) rotate(720deg);
-            opacity: 0;
-          }
-        }
-
-        @keyframes sparkle {
-          0%,
-          100% {
-            opacity: 0;
-            transform: scale(0) rotate(0deg);
-          }
-          50% {
-            opacity: 1;
-            transform: scale(1) rotate(180deg);
-          }
-        }
-
-        .sparkle {
-          animation: sparkle 2s infinite;
-        }
-
-        @keyframes pulse-glow {
-          0%,
-          100% {
-            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
-          }
-          50% {
-            box-shadow: 0 0 40px rgba(255, 107, 107, 0.8);
-          }
-        }
-      `}</style>
-
       <div className="max-w-6xl mx-auto text-center">
         {/* Header with Admin Toggle */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex justify-between items-start mb-4">
-            <div className="flex-1">
-              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent mb-2 sm:mb-4">
-                🌸 Vòng Quay May Mắn 🌸
-              </h1>
-              <p className="text-lg sm:text-xl text-gray-600 font-medium">
-                Lisse Beauty - Quay ngay để nhận ưu đãi hấp dẫn!
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => {
-                  playButtonSound();
-                  setIsSoundEnabled(!isSoundEnabled);
-                }}
-                variant="outline"
-                size="sm"
-                className={isSoundEnabled ? "text-green-600" : "text-gray-400"}
-              >
-                {isSoundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
-              </Button>
-              <Button
-                onClick={() => {
-                  playButtonSound();
-                  setIsAdminMode(!isAdminMode);
-                }}
-                variant="outline"
-                size="sm"
-              >
-                <Settings size={16} />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <Header />
+        <ActionButtons
+          playButtonSound={playButtonSound}
+          setIsSoundEnabled={setIsSoundEnabled}
+          isSoundEnabled={isSoundEnabled}
+          isLoggedIn={isLoggedIn}
+          setIsAdminMode={setIsAdminMode}
+          isAdminMode={isAdminMode}
+          setShowLoginForm={setShowLoginForm}
+          showLoginForm={showLoginForm}
+          setIsLoggedIn={setIsLoggedIn}
+        />
 
-        {isAdminMode && (
+        {/* Form đăng nhập Admin */}
+        {showLoginForm && !isLoggedIn && (
+          <LoginForm
+            adminCredentials={adminCredentials}
+            setAdminCredentials={setAdminCredentials}
+            setIsLoggedIn={setIsLoggedIn}
+            setShowLoginForm={setShowLoginForm}
+            playButtonSound={playButtonSound}
+          />
+        )}
+
+        {isAdminMode && isLoggedIn && (
           <Card className="mb-6 p-4 bg-white/90 backdrop-blur-sm">
             <h3 className="text-xl font-bold mb-4">⚙️ Quản lý Admin</h3>
 
@@ -468,184 +405,26 @@ export default function SpaLuckyWheel() {
           </Card>
         )}
 
-        <div className="mb-6 sm:mb-8">
-          <div className="max-w-sm sm:max-w-md mx-auto">
-            <div className="flex flex-col sm:flex-row gap-2 mb-4">
-              <Input
-                type="tel"
-                placeholder="Nhập số điện thoại để quay thưởng"
-                value={phone}
-                onChange={(e) => {
-                  setPhone(e.target.value);
-                  validatePhone(e.target.value);
-                }}
-                className={`${!isPhoneValid && phone ? "border-red-500" : ""}`}
-              />
-              <Button
-                onClick={() => setShowHistory(!showHistory)}
-                variant="outline"
-                className="whitespace-nowrap"
-              >
-                {showHistory ? "Ẩn lịch sử" : "Xem lịch sử"}
-              </Button>
-            </div>
-            {!isPhoneValid && phone && (
-              <p className="text-red-500 text-sm mb-2">
-                Vui lòng nhập số điện thoại hợp lệ (VD: 0912345678)
-              </p>
-            )}
-          </div>
-
-          {showHistory && spinHistory.length > 0 && (
-            <Card className="max-w-sm sm:max-w-md mx-auto p-4 mb-4 max-h-60 overflow-auto">
-              <h3 className="text-lg font-bold mb-2">Lịch sử quay thưởng</h3>
-              <div className="space-y-2">
-                {spinHistory.map((entry, index) => (
-                  <div key={index} className="text-sm border-b pb-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">{entry.phone}</span>
-                      <span className="text-gray-500">{entry.date}</span>
-                    </div>
-                    <div className="text-green-600 font-medium">
-                      {entry.prize}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-        </div>
+        <History
+          phone={phone}
+          setPhone={setPhone}
+          isPhoneValid={isPhoneValid}
+          showHistory={showHistory}
+          validatePhone={validatePhone}
+          setShowHistory={setShowHistory}
+          spinHistory={spinHistory}
+        />
 
         {/* Wheel Container */}
-        <div className="relative mb-6 sm:mb-8 flex justify-center">
-          <div className="relative">
-            <div className="absolute -top-6 -left-6 text-yellow-400 sparkle">
-              <Sparkles size={20} />
-            </div>
-            <div
-              className="absolute -top-6 -right-6 text-pink-400 sparkle"
-              style={{ animationDelay: "0.5s" }}
-            >
-              <Star size={20} />
-            </div>
-            <div
-              className="absolute -bottom-6 -left-6 text-purple-400 sparkle"
-              style={{ animationDelay: "1s" }}
-            >
-              <Heart size={20} />
-            </div>
-            <div
-              className="absolute -bottom-6 -right-6 text-blue-400 sparkle"
-              style={{ animationDelay: "1.5s" }}
-            >
-              <Gift size={20} />
-            </div>
+        <Wheel
+          wheelRef={wheelRef}
+          prizes={prizes}
+          isSpinning={isSpinning}
+          spinWheel={spinWheel}
+          result={result}
+        />
 
-            <div className="relative w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96">
-              <div
-                ref={wheelRef}
-                className="w-full h-full rounded-full border-4 sm:border-8 border-white shadow-2xl relative overflow-hidden"
-                style={{
-                  background: `conic-gradient(${prizes
-                    .map((prize, index) => {
-                      const segmentAngle = 360 / prizes.length;
-                      return `${prize.color} ${index * segmentAngle}deg ${
-                        (index + 1) * segmentAngle
-                      }deg`;
-                    })
-                    .join(", ")})`,
-                  animation: isSpinning ? "pulse-glow 0.5s infinite" : "none",
-                }}
-              >
-                {prizes.map((prize, index) => {
-                  const segmentAngle = 360 / prizes.length;
-                  const angle = index * segmentAngle + segmentAngle / 2;
-
-                  return (
-                    <div
-                      key={prize.id}
-                      className="absolute top-1/2 right-1/2 left-1/2 origin-left"
-                      style={{
-                        transform: `translate(-50%, -50%) rotate(${angle}deg) translateX(60px)`,
-                        transformOrigin: "left center",
-                      }}
-                    >
-                      <div className="flex items-center text-white font-bold drop-shadow-lg">
-                        <span className="text-lg sm:text-xl mr-2">
-                          {prize.icon}
-                        </span>
-                        <span className="text-xs sm:text-sm text-center whitespace-nowrap">
-                          {prize.text.length > 15
-                            ? prize.text.substring(0, 15) + "..."
-                            : prize.text}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="absolute top-1/2 right-0 z-10">
-                <div className="w-0 h-0 border-l-8 border-r-8 border-b-12 rotate-[270deg] border-l-transparent border-r-transparent border-b-red-500 drop-shadow-lg"></div>
-              </div>
-
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full border-2 sm:border-4 border-white shadow-xl flex items-center justify-center z-10">
-                <span className="text-xl sm:text-2xl">🎯</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-6 sm:mb-8">
-          <Button
-            onClick={spinWheel}
-            disabled={isSpinning}
-            className="px-6 sm:px-8 py-3 sm:py-4 text-lg sm:text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-full shadow-lg transform transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSpinning ? (
-              <span className="flex items-center gap-2">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Đang quay...
-              </span>
-            ) : (
-              "🎲 QUAY NGAY!"
-            )}
-          </Button>
-        </div>
-
-        {result && (
-          <Card className="max-w-sm sm:max-w-md mx-auto p-4 sm:p-6 bg-gradient-to-r from-green-400 to-blue-500 text-white border-0 shadow-xl animate-bounce mb-6">
-            <div className="text-center">
-              <h3 className="text-xl sm:text-2xl font-bold mb-2">
-                🎉 Chúc mừng! 🎉
-              </h3>
-              <p className="text-lg sm:text-xl font-semibold">{result}</p>
-              <p className="text-sm mt-2 opacity-90">
-                Hãy đến spa để sử dụng ưu đãi nhé!
-              </p>
-            </div>
-          </Card>
-        )}
-
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg">
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">
-            🏪 Lisse Beauty
-          </h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 text-gray-700 text-sm sm:text-base">
-            <div>
-              <p className="font-semibold">📍 Địa chỉ:</p>
-              <p>123 Đường ABC, Quận XYZ</p>
-            </div>
-            <div>
-              <p className="font-semibold">📞 Hotline:</p>
-              <p>0123.456.789</p>
-            </div>
-            <div>
-              <p className="font-semibold">⏰ Giờ mở cửa:</p>
-              <p>8:00 - 22:00 hàng ngày</p>
-            </div>
-          </div>
-        </div>
+        <Footer />
       </div>
     </div>
   );
