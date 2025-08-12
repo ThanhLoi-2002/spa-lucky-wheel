@@ -19,6 +19,14 @@ const Wheel: FC<Props> = ({
   wheelRef,
   result,
 }) => {
+  console.log(prizes
+                  .map((prize, index) => {
+                    const segmentAngle = 360 / prizes.length;
+                    return `${prize.color} ${index * segmentAngle}deg ${
+                      (index + 1) * segmentAngle
+                    }deg`;
+                  })
+                  .join(", "))
   return (
     <div>
       <div className="relative mb-6 sm:mb-8 flex justify-center">
@@ -63,15 +71,15 @@ const Wheel: FC<Props> = ({
             >
               {prizes.map((prize, index) => {
                 const segmentAngle = 360 / prizes.length;
-                const angle = index * segmentAngle + segmentAngle / 2;
-
+                const angle = (index) * segmentAngle + segmentAngle / 2;
+console.log(angle)
                 return (
                   <div
                     key={prize.id}
-                    className="absolute top-1/2 right-1/2 left-1/2 origin-left"
+                    className="absolute top-1/2 right-1/2 left-1/2"
                     style={{
                       transform: `translate(-50%, -50%) rotate(${angle}deg) translateX(60px)`,
-                      transformOrigin: "left center",
+                      // transformOrigin: "left center",
                     }}
                   >
                     <div className="flex items-center text-white font-bold drop-shadow-lg">

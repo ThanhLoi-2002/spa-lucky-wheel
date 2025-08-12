@@ -2,6 +2,7 @@ import React, { FC, useState } from 'react'
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
+import { Eye, EyeClosed } from 'lucide-react';
 
 interface Props {
   adminCredentials: { username: string; password: string };
@@ -19,6 +20,7 @@ const LoginForm: FC<Props> = ({
   playButtonSound,
 }) => {
   const [loginError, setLoginError] = useState("");
+  const [isShowPassword, setIsShowPassword] = useState(false);
   // Hàm xử lý đăng nhập
   const handleLogin = () => {
     // Thông tin đăng nhập mặc định (trong thực tế nên lưu trữ an toàn hơn)
@@ -43,30 +45,51 @@ const LoginForm: FC<Props> = ({
     <Card className="mb-6 p-4 bg-white/90 backdrop-blur-sm">
       <h3 className="text-xl font-bold mb-4">🔐 Đăng nhập Admin</h3>
       <div className="flex flex-col gap-4 max-w-md mx-auto">
-        <Input
-          placeholder="Tên đăng nhập"
-          value={adminCredentials.username}
-          onChange={(e) =>
-            setAdminCredentials({
-              ...adminCredentials,
-              username: e.target.value,
-            })
-          }
-        />
-        <Input
-          type="password"
-          placeholder="Mật khẩu"
-          value={adminCredentials.password}
-          onChange={(e) =>
-            setAdminCredentials({
-              ...adminCredentials,
-              password: e.target.value,
-            })
-          }
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleLogin();
-          }}
-        />
+        <div>
+          <label className="flex align-items-start mb-1" htmlFor="username">
+            Tên đăng nhập
+          </label>
+          <Input
+            id="username"
+            placeholder="Tên đăng nhập"
+            value={adminCredentials.username}
+            onChange={(e) =>
+              setAdminCredentials({
+                ...adminCredentials,
+                username: e.target.value,
+              })
+            }
+          />
+        </div>
+        <div className="">
+          <label className="flex mb-1" htmlFor="password">
+            Mật khẩu
+          </label>
+          <div className="flex relative">
+          <Input
+            id="password"
+            type={isShowPassword ? "text" : "password"}
+            placeholder="Mật khẩu"
+            value={adminCredentials.password}
+            onChange={(e) =>
+              setAdminCredentials({
+                ...adminCredentials,
+                password: e.target.value,
+              })
+            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleLogin();
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => setIsShowPassword(!isShowPassword)}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-700 flex items-center"
+          >
+            {isShowPassword ? <Eye /> : <EyeClosed />}
+          </button>
+          </div>
+        </div>
         {loginError && <p className="text-red-500 text-sm">{loginError}</p>}
         <Button onClick={handleLogin} className="w-full">
           Đăng nhập
