@@ -1,15 +1,15 @@
-import React, { FC } from 'react'
-import { Button } from '../ui/button';
-import { Gift, Heart, Sparkles, Star } from 'lucide-react';
-import { Prize } from '@/app/constants/constant';
-import { Card } from '../ui/card';
+import React, { FC, useEffect, useRef } from "react";
+import { Button } from "../ui/button";
+import { Gift, Heart, Sparkles, Star } from "lucide-react";
+import { Prize } from "@/app/constants/constant";
+import { Card } from "../ui/card";
 
 interface Props {
-  wheelRef: any;
+  wheelRef: React.RefObject<HTMLCanvasElement | null>;
   prizes: Prize[];
   isSpinning: boolean;
   spinWheel: () => void;
-  result?: string | undefined | null
+  result?: string | undefined | null;
 }
 
 const Wheel: FC<Props> = ({
@@ -19,91 +19,81 @@ const Wheel: FC<Props> = ({
   wheelRef,
   result,
 }) => {
-  console.log(prizes
-                  .map((prize, index) => {
-                    const segmentAngle = 360 / prizes.length;
-                    return `${prize.color} ${index * segmentAngle}deg ${
-                      (index + 1) * segmentAngle
-                    }deg`;
-                  })
-                  .join(", "))
+  const drawWheel = () => {
+    const canvas = wheelRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const numOptions = prizes.length;
+    const arcSize = (2 * Math.PI) / numOptions;
+    const radius = canvas.width / 2;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(radius, radius);
+
+    for (let i = 0; i < numOptions; i++) {
+      const option = prizes[i];
+      const angle = i * arcSize;
+
+      ctx.beginPath();
+      ctx.arc(0, 0, radius - 10, angle, angle + arcSize, false);
+      ctx.arc(0, 0, 0, angle + arcSize, angle, true);
+      ctx.fillStyle = option.color;
+      ctx.fill();
+
+      ctx.save();
+      ctx.fillStyle = "white";
+      ctx.font = "bold 20px Be Vietnam Pro";
+      console.log(ctx.font)
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const textAngle = angle + arcSize / 2;
+      ctx.rotate(textAngle);
+      
+      let shortenedText = option.text;
+      if (option.text.length > 12) {
+        shortenedText = option.text.substring(0, 12) + "...";
+      }
+      ctx.fillText(option.icon, radius * 0.3, 0);
+      ctx.fillText(shortenedText, radius * 0.65, 0);
+      ctx.restore();
+    }
+
+    ctx.beginPath();
+    ctx.arc(0, 0, 25, 0, 2 * Math.PI);
+    ctx.fillStyle = "white";
+    ctx.shadowColor = "rgba(0,0,0,0.2)";
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.beginPath();
+    ctx.arc(0, 0, 8, 0, 2 * Math.PI);
+    ctx.fillStyle = "#d1d5db";
+    ctx.fill();
+    ctx.restore();
+  };
+
+  useEffect(() => {
+    drawWheel();
+  }, [prizes]);
+
   return (
-    <div>
+    <div className="flex flex-col items-center">
       <div className="relative mb-6 sm:mb-8 flex justify-center">
-        <div className="relative">
-          <div className="absolute -top-6 -left-6 text-yellow-400 sparkle">
-            <Sparkles size={20} />
+        <div className="relative w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full border-2 sm:border-4 border-white shadow-2xl">
+          <canvas
+            ref={wheelRef}
+            width={500}
+            height={500}
+            className="w-full h-full"
+          />
+          <div className="absolute top-1/2 right-0 z-10">
+            <div className="w-0 h-0 border-l-8 border-r-8 border-b-12 rotate-[270deg] border-l-transparent border-r-transparent border-b-red-500 drop-shadow-lg"></div>
           </div>
-          <div
-            className="absolute -top-6 -right-6 text-pink-400 sparkle"
-            style={{ animationDelay: "0.5s" }}
-          >
-            <Star size={20} />
-          </div>
-          <div
-            className="absolute -bottom-6 -left-6 text-purple-400 sparkle"
-            style={{ animationDelay: "1s" }}
-          >
-            <Heart size={20} />
-          </div>
-          <div
-            className="absolute -bottom-6 -right-6 text-blue-400 sparkle"
-            style={{ animationDelay: "1.5s" }}
-          >
-            <Gift size={20} />
-          </div>
-
-          <div className="relative w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96">
-            <div
-              ref={wheelRef}
-              className="w-full h-full rounded-full border-4 sm:border-8 border-white shadow-2xl relative overflow-hidden"
-              style={{
-                background: `conic-gradient(${prizes
-                  .map((prize, index) => {
-                    const segmentAngle = 360 / prizes.length;
-                    return `${prize.color} ${index * segmentAngle}deg ${
-                      (index + 1) * segmentAngle
-                    }deg`;
-                  })
-                  .join(", ")})`,
-                animation: isSpinning ? "pulse-glow 0.5s infinite" : "none",
-              }}
-            >
-              {prizes.map((prize, index) => {
-                const segmentAngle = 360 / prizes.length;
-                const angle = (index) * segmentAngle + segmentAngle / 2;
-console.log(angle)
-                return (
-                  <div
-                    key={prize.id}
-                    className="absolute top-1/2 right-1/2 left-1/2"
-                    style={{
-                      transform: `translate(-50%, -50%) rotate(${angle}deg) translateX(60px)`,
-                      // transformOrigin: "left center",
-                    }}
-                  >
-                    <div className="flex items-center text-white font-bold drop-shadow-lg">
-                      <span className="text-lg sm:text-xl mr-2">
-                        {prize.icon}
-                      </span>
-                      <span className="text-xs sm:text-sm text-center whitespace-nowrap">
-                        {prize.text.length > 15
-                          ? prize.text.substring(0, 15) + "..."
-                          : prize.text}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="absolute top-1/2 right-0 z-10">
-              <div className="w-0 h-0 border-l-8 border-r-8 border-b-12 rotate-[270deg] border-l-transparent border-r-transparent border-b-red-500 drop-shadow-lg"></div>
-            </div>
-
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full border-2 sm:border-4 border-white shadow-xl flex items-center justify-center z-10">
-              <span className="text-xl sm:text-2xl">🎯</span>
-            </div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full border-2 sm:border-4 border-white shadow-xl flex items-center justify-center z-10">
+            <span className="text-xl sm:text-2xl">🎯</span>
           </div>
         </div>
       </div>
@@ -117,10 +107,10 @@ console.log(angle)
           {isSpinning ? (
             <span className="flex items-center gap-2">
               <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              Đang quay...
+              <span className="text-lg sm:text-xl">Đang quay...</span>
             </span>
           ) : (
-            "🎲 QUAY NGAY!"
+            <span className="text-lg sm:text-xl">🎲 QUAY NGAY!</span>
           )}
         </Button>
       </div>
@@ -142,4 +132,4 @@ console.log(angle)
   );
 };
 
-export default Wheel
+export default Wheel;

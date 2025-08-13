@@ -45,7 +45,7 @@ export default function SpaLuckyWheel() {
   const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [spinHistory, setSpinHistory] = useState<SpinHistory[]>([]);
   const [showHistory, setShowHistory] = useState(false);
-  const wheelRef = useRef<HTMLDivElement>(null);
+  const wheelRef = useRef<HTMLCanvasElement>(null);
   const tickIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const createAudioContext = () => {
